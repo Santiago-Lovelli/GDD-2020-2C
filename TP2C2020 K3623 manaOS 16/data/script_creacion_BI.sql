@@ -35,7 +35,7 @@ CREATE TABLE GD2C2020.manaOS_BI.Sucursal(
 	SUCURSAL_DIRECCION nvarchar(255),
 	SUCURSAL_MAIL nvarchar (255),
 	SUCURSAL_TELEFONO decimal (18,0),
-	CIUDAD_ID int NOT NULL
+	CIUDAD_NOMBRE nvarchar(255)
 );
 
 -----------------------------------------------------------------------------------------------------
@@ -58,7 +58,11 @@ CREATE TABLE GD2C2020.manaOS_BI.Fabricante (
 
 -----------------------------------------------------------------------------------------------------
 
-TIPO DE VEHICULO
+CREATE TABLE GD2C2020.manaOS_BI.TipoAuto (
+	TIPO_AUTO_CODIGO DECIMAL(18,0) NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	TIPO_AUTO_DESC NVARCHAR(255),
+);
+
 
 -----------------------------------------------------------------------------------------------------
 
@@ -67,10 +71,6 @@ CREATE TABLE GD2C2020.manaOS_BI.Caja(
 	CAJA_CODIGO DECIMAL(18,0) NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	CAJA_DESC NVARCHAR(255),
 );
-
------------------------------------------------------------------------------------------------------
-
-CANTIDAD DE CAMBIOS
 
 -----------------------------------------------------------------------------------------------------
 
@@ -94,7 +94,6 @@ CREATE TABLE GD2C2020.manaOS_BI.Potencia (
 
 -----------------------------------------------------------------------------------------------------
 
-
 CREATE TABLE GD2C2020.manaOS_BI.AutoParte(
 	AUTOPARTE_ID int NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	AUTO_PARTE_CODIGO decimal(18,0),
@@ -105,15 +104,49 @@ CREATE TABLE GD2C2020.manaOS_BI.AutoParte(
 
 -----------------------------------------------------------------------------------------------------
 
-RUBRO DE AUTOPARTE 
-
------------------------------------------------------------------------------------------------------
-
-
 CREATE TABLE GD2C2020.manaOS_BI.Fabricante (
 	FABRICANTE_ID INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	FABRICANTE_NOMBRE VARCHAR(50)
 );
+
+--Agregamos las FK-----------------------------------------------------------------------------------
+
+ALTER TABLE GD2C2020.manaOS.Modelo
+   ADD CONSTRAINT FK_Modelo_Transmision FOREIGN KEY (TRANSMISION_CODIGO)
+      REFERENCES GD2C2020.manaOS.Transmision (TRANSMISION_CODIGO)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+;
+
+ALTER TABLE GD2C2020.manaOS.Modelo
+   ADD CONSTRAINT FK_Modelo_Motor FOREIGN KEY (MOTOR_CODIGO)
+      REFERENCES GD2C2020.manaOS.Motor (MOTOR_CODIGO)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+;
+
+ALTER TABLE GD2C2020.manaOS.Modelo
+   ADD CONSTRAINT FK_Modelo_Caja FOREIGN KEY (CAJA_CODIGO)
+      REFERENCES GD2C2020.manaOS.Caja (CAJA_CODIGO)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+;
+
+-----------------------------------------------------------------------------------------------------
+
+ALTER TABLE GD2C2020.manaOS.AutoParte
+   ADD CONSTRAINT FK_AutoParte_Fabricante FOREIGN KEY (FABRICANTE_ID)
+      REFERENCES GD2C2020.manaOS.Fabricante(FABRICANTE_ID)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+;
+
+ALTER TABLE GD2C2020.manaOS.AutoParte
+   ADD CONSTRAINT FK_AutoParte_Modelo FOREIGN KEY (MODELO_CODIGO)
+      REFERENCES GD2C2020.manaOS.Modelo(MODELO_CODIGO)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+;
 
 --Vistas---------------------------------------------------------------------------------------------
 

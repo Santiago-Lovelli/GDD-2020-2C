@@ -43,6 +43,13 @@ CREATE TABLE GD2C2020.manaOS.Modelo (
 
 -----------------------------------------------------------------------------------------------------
 
+CREATE TABLE GD2C2020.manaOS.TipoAuto (
+	TIPO_AUTO_CODIGO DECIMAL(18,0) NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	TIPO_AUTO_DESC NVARCHAR(255),
+);
+
+-----------------------------------------------------------------------------------------------------
+
 CREATE TABLE GD2C2020.manaOS.Auto (
 	AUTO_ID INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	AUTO_CANT_KMS DECIMAL(18,0),
@@ -52,6 +59,7 @@ CREATE TABLE GD2C2020.manaOS.Auto (
 	AUTO_PATENTE nvarchar (255),
 	MODELO_CODIGO decimal(18,0) NOT NULL,
 	FABRICANTE_ID int NOT NULL,
+	TIPO_AUTO_ID int NOT NULL,
 );
 
 
@@ -194,6 +202,13 @@ ALTER TABLE GD2C2020.manaOS.Auto
 ALTER TABLE GD2C2020.manaOS.Auto
    ADD CONSTRAINT FK_Auto_Fabricante FOREIGN KEY (FABRICANTE_ID)
       REFERENCES GD2C2020.manaOS.Fabricante(FABRICANTE_ID)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+;
+
+ALTER TABLE GD2C2020.manaOS.Auto
+   ADD CONSTRAINT FK_Auto_Tipo FOREIGN KEY (TIPO_AUTO_ID)
+      REFERENCES GD2C2020.manaOS.TipoAuto(TIPO_AUTO_ID)
       ON DELETE CASCADE
       ON UPDATE CASCADE
 ;
