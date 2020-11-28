@@ -288,7 +288,7 @@ ALTER TABLE GD2C2020.manaOS_BI.Compra
 --Inserts--------------------------------------------------------------------------------------------
 
 
---Potencia-------------------------------------------------------------------------------------------
+--Potencia
 
 INSERT INTO GD2C2020.manaOS_BI.Potencia (POTENCIA_CODIGO, POTENCIA_DESC)
 VALUES (1, '50-150cv')
