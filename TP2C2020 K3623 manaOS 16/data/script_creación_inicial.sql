@@ -2,6 +2,8 @@
 USE GD2C2020
 GO
 
+
+
 CREATE SCHEMA [manaOS]
 GO
 
