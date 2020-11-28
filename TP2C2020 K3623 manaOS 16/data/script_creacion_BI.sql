@@ -104,13 +104,6 @@ CREATE TABLE GD2C2020.manaOS_BI.AutoParte(
 
 -----------------------------------------------------------------------------------------------------
 
-CREATE TABLE GD2C2020.manaOS_BI.Fabricante (
-	FABRICANTE_ID INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	FABRICANTE_NOMBRE VARCHAR(50)
-);
-
------------------------------------------------------------------------------------------------------
-
 CREATE TABLE GD2C2020.manaOS_BI.CompraDeAutoParte(
 	COMPRA_AUTOPARTE_ID int NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	COMPRA_AUTOPARTE_PRECIO float,
@@ -286,9 +279,34 @@ ALTER TABLE GD2C2020.manaOS_BI.Compra
 
 
 --Inserts--------------------------------------------------------------------------------------------
+INSERT INTO GD2C2020.manaOS_BI.[Tiempo] (ANIO_NRO,MES_NRO)
+SELECT year([COMPRA_FECHA]) as anio, MONTH([COMPRA_FECHA]) as mes
+FROM [GD2C2020].[manaOS].[Compra]
+WHERE [COMPRA_FECHA] IS NOT NULL
+GROUP BY year([COMPRA_FECHA]), MONTH([COMPRA_FECHA])
+UNION
+SELECT year([CLIENTE_FECHA]) as anio, MONTH([CLIENTE_FECHA]) as mes
+FROM [GD2C2020].[manaOS].[Cliente]
+WHERE [CLIENTE_FECHA] IS NOT NULL
+GROUP BY year([CLIENTE_FECHA]), MONTH([CLIENTE_FECHA])
+UNION
+SELECT year([AUTO_FECHA_ALTA]) as anio, MONTH([AUTO_FECHA_ALTA]) as mes
+FROM [GD2C2020].[manaOS].[Auto]
+WHERE [AUTO_FECHA_ALTA] IS NOT NULL
+GROUP BY year([AUTO_FECHA_ALTA]), MONTH([AUTO_FECHA_ALTA])
+UNION
+SELECT year([FACTURA_FECHA]) as anio, MONTH([FACTURA_FECHA]) as mes
+FROM [GD2C2020].[manaOS].[Factura]
+WHERE [FACTURA_FECHA] IS NOT NULL
+GROUP BY year([FACTURA_FECHA]), MONTH([FACTURA_FECHA])
+ORDER BY anio, mes
 
+GO
 
 --Potencia
+
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Potencia] ON
+GO
 
 INSERT INTO GD2C2020.manaOS_BI.Potencia (POTENCIA_CODIGO, POTENCIA_DESC)
 VALUES (1, '50-150cv')
@@ -298,3 +316,6 @@ VALUES (2, '151-300cv')
 
 INSERT INTO GD2C2020.manaOS_BI.Potencia (POTENCIA_CODIGO, POTENCIA_DESC)
 VALUES (3, '>300cv')
+
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Potencia] OFF
+GO
