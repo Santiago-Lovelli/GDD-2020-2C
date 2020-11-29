@@ -8,6 +8,8 @@ GO
 
 --Creacion de tablas---------------------------------------------------------------------------------
 
+BEGIN TRANSACTION transaccion_creacion_tablas
+
 CREATE TABLE GD2C2020.manaOS_BI.Tiempo (
 	TIEMPO_CODIGO DECIMAL(18,0) NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	MES_NRO decimal (18,0) NOT NULL,
@@ -147,7 +149,7 @@ CREATE TABLE GD2C2020.manaOS_BI.Factura(
 	FACTURA_FECHA datetime2 (3),
 	CANT_FACTURADA decimal (18,0),
 	PRECIO_FACTURADO decimal (18,0),
-	CLIENTE_ID int NOT NULL,
+	CLIENTE_ID DECIMAL(18,0) NOT NULL,
 	SUCURSAL_ID int NOT NULL,
 );
 
@@ -159,6 +161,20 @@ CREATE TABLE GD2C2020.manaOS_BI.Compra(
 	COMPRA_PRECIO decimal (18,0),
 	COMPRA_CANT decimal (18,0),
 	FACTURA_NRO decimal (18,0)
+);
+
+-----------------------------------------------------------------------------------------------------
+
+CREATE TABLE GD2C2020.manaOS_BI.Auto (
+	AUTO_ID INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	AUTO_CANT_KMS DECIMAL(18,0),
+	AUTO_FECHA_ALTA DATETIME2(3),
+	AUTO_NRO_CHASIS NVARCHAR(255),
+	AUTO_NRO_MOTOR nvarchar (255),
+	AUTO_PATENTE nvarchar (255),
+	MODELO_CODIGO decimal(18,0) NOT NULL,
+	FABRICANTE_ID int NOT NULL,
+	TIPO_AUTO_CODIGO decimal(18,0) NOT NULL,
 );
 
 
@@ -253,7 +269,7 @@ ALTER TABLE GD2C2020.manaOS_BI.CompraDeAuto
 
 ALTER TABLE GD2C2020.manaOS_BI.Factura
    ADD CONSTRAINT FK_Factura_Cliente FOREIGN KEY (CLIENTE_ID)
-      REFERENCES GD2C2020.manaOS_BI.Cliente(CLIENTE_ID)
+      REFERENCES GD2C2020.manaOS_BI.Cliente(CLIENTE_CODIGO)
       ON DELETE CASCADE
       ON UPDATE CASCADE
 ;
@@ -274,11 +290,51 @@ ALTER TABLE GD2C2020.manaOS_BI.Compra
       ON UPDATE CASCADE
 ;
 
+-----------------------------------------------------------------------------------------------------
+
+ALTER TABLE GD2C2020.manaOS.Auto
+   ADD CONSTRAINT FK_Auto_Modelo FOREIGN KEY (MODELO_CODIGO)
+      REFERENCES GD2C2020.manaOS.Modelo(MODELO_CODIGO)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+;
+
+ALTER TABLE GD2C2020.manaOS.Auto
+   ADD CONSTRAINT FK_Auto_Fabricante FOREIGN KEY (FABRICANTE_ID)
+      REFERENCES GD2C2020.manaOS.Fabricante(FABRICANTE_ID)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+;
+
+ALTER TABLE GD2C2020.manaOS.Auto
+   ADD CONSTRAINT FK_Auto_Tipo FOREIGN KEY (TIPO_AUTO_CODIGO)
+      REFERENCES GD2C2020.manaOS.TipoAuto(TIPO_AUTO_CODIGO)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+;
+
+COMMIT TRANSACTION transaccion_creacion_tablas
 
 --Vistas---------------------------------------------------------------------------------------------
 
 
+USE GD2C2020
+GO
+
+BEGIN TRANSACTION transaccion_creacion_vistas
+
+COMMIT TRANSACTION transaccion_creacion_vistas
+
+
 --Inserts--------------------------------------------------------------------------------------------
+
+USE GD2C2020
+GO
+
+BEGIN TRANSACTION transaccion_migracion_datos
+
+--Tiempo
+
 INSERT INTO GD2C2020.manaOS_BI.[Tiempo] (ANIO_NRO,MES_NRO)
 SELECT year([COMPRA_FECHA]) as anio, MONTH([COMPRA_FECHA]) as mes
 FROM [GD2C2020].[manaOS].[Compra]
@@ -319,3 +375,5 @@ VALUES (3, '>300cv')
 
 SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Potencia] OFF
 GO
+
+COMMIT TRANSACTION transaccion_migracion_datos
