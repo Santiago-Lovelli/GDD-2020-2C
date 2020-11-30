@@ -315,17 +315,6 @@ ALTER TABLE GD2C2020.manaOS_BI.Auto
 
 COMMIT TRANSACTION transaccion_creacion_tablas
 
---Vistas---------------------------------------------------------------------------------------------
-
-
-USE GD2C2020
-GO
-
-BEGIN TRANSACTION transaccion_creacion_vistas
-
-COMMIT TRANSACTION transaccion_creacion_vistas
-
-
 --Inserts--------------------------------------------------------------------------------------------
 
 USE GD2C2020
@@ -452,12 +441,6 @@ SELECT ta.[TIPO_AUTO_CODIGO], ta.[TIPO_AUTO_DESC]
 SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[TipoAuto] OFF
 GO
 
--- TipoDeCaja ???
-
--- TipoDeAuto ??
-
--- Cantidad de cambios ??
-
 --Potencia
 
 SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Potencia] ON
@@ -483,6 +466,54 @@ SELECT a.[AUTO_PARTE_CODIGO], a.[AUTO_PARTE_DESCRIPCION], f_bi.[FABRICANTE_ID], 
 	INNER JOIN [GD2C2020].[manaOS].[Fabricante] f ON f.FABRICANTE_ID = a.FABRICANTE_ID
 	INNER JOIN [GD2C2020].[manaOS_BI].[Fabricante] f_bi ON f_bi.FABRICANTE_NOMBRE =f.FABRICANTE_NOMBRE
 
--- Rubro de la autoparte??
 
 COMMIT TRANSACTION transaccion_migracion_datos
+
+
+
+--Vistas---------------------------------------------------------------------------------------------
+
+USE GD2C2020
+GO
+
+BEGIN TRANSACTION transaccion_creacion_vistas
+
+-- Cantidad de automóviles, vendidos y comprados x sucursal y mes
+
+CREATE VIEW [manaOS_BI].vista_automoviles_vendido_x_sucursal_y_mes AS 
+	SELECT CONCAT( s.[SUCURSAL_DIRECCION], ', ', s.[CIUDAD_NOMBRE]) as Sucursal,
+	COUNT(a.[AUTO_ID]) AS CANTIDAD_DE_AUTOMOVILES, MONTH(F.[FACTURA_FECHA]) AS MES
+	FROM [GD2C2020].[manaOS_BI].[Sucursal] s
+	INNER JOIN [GD2C2020].[manaOS].[Factura] f ON f.[SUCURSAL_ID] = S.[SUCURSAL_ID]
+	INNER JOIN [GD2C2020].[manaOS].[FacturacionDeAuto] fa ON fa.[FACTURA_NRO] = f.[FACTURA_NRO]
+	INNER JOIN [GD2C2020].[manaOS].[Auto] a ON a.[AUTO_ID] = fa.[AUTO_ID]
+	GROUP BY s.[SUCURSAL_DIRECCION],s.[CIUDAD_NOMBRE], MONTH(F.[FACTURA_FECHA])
+
+-- Precio promedio de automóviles, vendidos y comprados.
+
+CREATE VIEW [manaOS_BI].vista_precio_promedio_autos_vendidos_y_comprados AS 
+	SELECT CASE WHEN (AVG((f.[PRECIO_FACTURADO] + c.[COMPRA_PRECIO])/2)) IS NULL THEN 0
+				WHEN (AVG((f.[PRECIO_FACTURADO] + c.[COMPRA_PRECIO])/2)) IS NOT NULL THEN AVG((f.[PRECIO_FACTURADO] + c.[COMPRA_PRECIO])/2)
+				END as PrecioPromedio, 
+				a.[AUTO_PATENTE]
+	FROM [GD2C2020].[manaOS].[Factura] f 
+	INNER JOIN [GD2C2020].[manaOS].[FacturacionDeAuto] fa ON fa.[FACTURA_NRO] = f.[FACTURA_NRO]
+	RIGHT OUTER JOIN [GD2C2020].[manaOS].[Auto] a ON a.[AUTO_ID] = fa.[AUTO_ID]
+	LEFT OUTER JOIN [GD2C2020].[manaOS].[CompraDeAuto] ca ON ca.[AUTO_ID] = a.[AUTO_ID]
+	INNER JOIN [GD2C2020].[manaOS].[Compra] c ON c.[COMPRA_NRO] = ca.[COMPRA_NRO]
+	GROUP BY A.[AUTO_PATENTE]
+
+
+-- Ganancias (precio de venta – precio de compra) x Sucursal x mes
+
+-- Promedio de tiempo en stock de cada modelo de automóvil.
+
+
+-- AUTOPARTE
+
+-- Precio promedio de cada autoparte, vendida y comprada.
+-- Ganancias (precio de venta – precio de compra) x Sucursal x mes
+-- Promedio de tiempo en stock de cada autoparte.
+-- Máxima cantidad de stock por cada sucursal (anual)
+
+COMMIT TRANSACTION transaccion_creacion_vistas
