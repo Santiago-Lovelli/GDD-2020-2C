@@ -466,10 +466,62 @@ SELECT a.[AUTO_PARTE_CODIGO], a.[AUTO_PARTE_DESCRIPCION], f_bi.[FABRICANTE_ID], 
 	INNER JOIN [GD2C2020].[manaOS].[Fabricante] f ON f.FABRICANTE_ID = a.FABRICANTE_ID
 	INNER JOIN [GD2C2020].[manaOS_BI].[Fabricante] f_bi ON f_bi.FABRICANTE_NOMBRE =f.FABRICANTE_NOMBRE
 
+-- Auto
+
+INSERT INTO [GD2C2020].[manaOS_BI].[Auto] ([AUTO_CANT_KMS],[AUTO_FECHA_ALTA],[AUTO_NRO_CHASIS],[AUTO_NRO_MOTOR],[AUTO_PATENTE],[FABRICANTE_ID],[MODELO_CODIGO],[TIPO_AUTO_CODIGO])
+	SELECT [AUTO_CANT_KMS],[AUTO_FECHA_ALTA],[AUTO_NRO_CHASIS],[AUTO_NRO_MOTOR],[AUTO_PATENTE],[FABRICANTE_ID],[MODELO_CODIGO],[TIPO_AUTO_CODIGO]
+	FROM [GD2C2020].[manaOS].[Auto]
+
+-- Factura
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Factura] ON
+GO
+INSERT INTO [GD2C2020].[manaOS_BI].[Factura] ([FACTURA_NRO],[CANT_FACTURADA],[CLIENTE_ID],[FACTURA_FECHA],[PRECIO_FACTURADO],[SUCURSAL_ID])
+	SELECT [FACTURA_NRO],[CANT_FACTURADA],[CLIENTE_ID],[FACTURA_FECHA],[PRECIO_FACTURADO],[SUCURSAL_ID] 
+	FROM [manaOS].[Factura]
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Factura] OFF
+GO
+-- FacturacionDeAuto
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[FacturacionDeAuto] ON
+GO
+INSERT INTO [GD2C2020].[manaOS_BI].[FacturacionDeAuto] ([FACTURACION_AUTO_ID],[PRECIO_AUTO_FACTURADO],[FACTURA_NRO],[AUTO_ID])
+	SELECT [FACTURACION_AUTO_ID],[PRECIO_AUTO_FACTURADO],[FACTURA_NRO],[AUTO_ID]
+	FROM [manaOS].[FacturacionDeAuto]
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[FacturacionDeAuto] OFF
+GO
+-- FacturacionDeAutoParte
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[FacturacionDeAutoParte] ON
+GO
+INSERT INTO [GD2C2020].[manaOS_BI].[FacturacionDeAutoParte] ([AUTOPARTE_ID],[FACTURA_NRO],[FACTURACION_AUTOPARTE_ID],[PRECIO_AUTOPARTE_FACTURADO])
+	SELECT [AUTOPARTE_ID],[FACTURA_NRO],[FACTURACION_AUTOPARTE_ID],[PRECIO_AUTOPARTE_FACTURADO]
+	FROM [manaOS].[FacturacionDeAutoParte]
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[FacturacionDeAutoParte] OFF
+GO
+-- Compra
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Compra] ON
+GO
+INSERT INTO [GD2C2020].[manaOS_BI].[Compra] ([COMPRA_CANT],[COMPRA_FECHA],[COMPRA_NRO],[COMPRA_PRECIO],[FACTURA_NRO])
+	SELECT [COMPRA_CANT],[COMPRA_FECHA],[COMPRA_NRO],[COMPRA_PRECIO],[FACTURA_NRO]
+	FROM  [GD2C2020].[manaOS].[Compra]
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Compra] OFF
+GO
+-- CompraDeAuto
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[CompraDeAuto] ON
+GO
+INSERT INTO [GD2C2020].[manaOS_BI].[CompraDeAuto] ([AUTO_ID],[COMPRA_AUTO_ID],[COMPRA_AUTO_PRECIO],[COMPRA_NRO])
+	SELECT [AUTO_ID],[COMPRA_AUTO_ID],[COMPRA_AUTO_PRECIO],[COMPRA_NRO]
+	FROM [GD2C2020].[manaOS].[CompraDeAuto]
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[CompraDeAuto] OFF
+GO
+-- CompraDeAutoParte
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[CompraDeAutoParte] ON
+GO
+INSERT INTO [GD2C2020].[manaOS_BI].[CompraDeAutoParte] ([AUTOPARTE_ID],[COMPRA_AUTOPARTE_ID],[COMPRA_AUTOPARTE_PRECIO],[COMPRA_NRO])
+	SELECT [AUTOPARTE_ID],[COMPRA_AUTOPARTE_ID],[COMPRA_AUTOPARTE_PRECIO],[COMPRA_NRO]
+	FROM [GD2C2020].[manaOS].[CompraDeAutoParte]
+SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[CompraDeAutoParte] OFF
+GO
 
 COMMIT TRANSACTION transaccion_migracion_datos
-
-
 
 --Vistas---------------------------------------------------------------------------------------------
 
@@ -477,7 +529,7 @@ USE GD2C2020
 GO
 
 BEGIN TRANSACTION transaccion_creacion_vistas
-
+GO
 -- Cantidad de automóviles, vendidos y comprados x sucursal y mes
 
 CREATE VIEW [manaOS_BI].vista_automoviles_vendido_x_sucursal_y_mes AS 
@@ -488,6 +540,7 @@ CREATE VIEW [manaOS_BI].vista_automoviles_vendido_x_sucursal_y_mes AS
 	INNER JOIN [GD2C2020].[manaOS].[FacturacionDeAuto] fa ON fa.[FACTURA_NRO] = f.[FACTURA_NRO]
 	INNER JOIN [GD2C2020].[manaOS].[Auto] a ON a.[AUTO_ID] = fa.[AUTO_ID]
 	GROUP BY s.[SUCURSAL_DIRECCION],s.[CIUDAD_NOMBRE], MONTH(F.[FACTURA_FECHA])
+GO --hacer que saque daltos del modelo de BI
 
 -- Precio promedio de automóviles, vendidos y comprados.
 
@@ -502,9 +555,12 @@ CREATE VIEW [manaOS_BI].vista_precio_promedio_autos_vendidos_y_comprados AS
 	LEFT OUTER JOIN [GD2C2020].[manaOS].[CompraDeAuto] ca ON ca.[AUTO_ID] = a.[AUTO_ID]
 	INNER JOIN [GD2C2020].[manaOS].[Compra] c ON c.[COMPRA_NRO] = ca.[COMPRA_NRO]
 	GROUP BY A.[AUTO_PATENTE]
-
+GO --hacer que saque daltos del modelo de BI
 
 -- Ganancias (precio de venta – precio de compra) x Sucursal x mes
+CREATE VIEW [manaOS_BI].vista_ganancias_xSucursal_xMes AS 
+	
+GO
 
 -- Promedio de tiempo en stock de cada modelo de automóvil.
 
@@ -513,7 +569,6 @@ CREATE VIEW [manaOS_BI].vista_precio_promedio_autos_vendidos_y_comprados AS
 
 -- Precio promedio de cada autoparte, vendida y comprada.
 -- Ganancias (precio de venta – precio de compra) x Sucursal x mes
--- Promedio de tiempo en stock de cada autoparte.
 -- Máxima cantidad de stock por cada sucursal (anual)
 
 COMMIT TRANSACTION transaccion_creacion_vistas
