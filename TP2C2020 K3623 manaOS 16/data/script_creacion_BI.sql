@@ -540,7 +540,7 @@ CREATE VIEW [manaOS_BI].vista_automoviles_vendido_x_sucursal_y_mes AS
 	INNER JOIN [GD2C2020].[manaOS_BI].[FacturacionDeAuto] fa ON fa.[FACTURA_NRO] = f.[FACTURA_NRO]
 	INNER JOIN [GD2C2020].[manaOS_BI].[Auto] a ON a.[AUTO_ID] = fa.[AUTO_ID]
 	GROUP BY s.[SUCURSAL_DIRECCION],s.[CIUDAD_NOMBRE], MONTH(F.[FACTURA_FECHA])
-GO --hacer que saque daltos del modelo de BI
+GO
 
 -- Precio promedio de automóviles, vendidos y comprados.
 
@@ -555,15 +555,17 @@ CREATE VIEW [manaOS_BI].vista_precio_promedio_autos_vendidos_y_comprados AS
 	LEFT OUTER JOIN [GD2C2020].[manaOS_BI].[CompraDeAuto] ca ON ca.[AUTO_ID] = a.[AUTO_ID]
 	INNER JOIN [GD2C2020].[manaOS_BI].[Compra] c ON c.[COMPRA_NRO] = ca.[COMPRA_NRO]
 	GROUP BY A.[AUTO_PATENTE]
-GO --hacer que saque daltos del modelo de BI
+GO 
 
 -- Ganancias (precio de venta – precio de compra) x Sucursal x mes
-CREATE VIEW [manaOS_BI].vista_ganancias_xSucursal_xMes AS 
-	SELECT SUM(c.COMPRA_PRECIO - f.PRECIO_FACTURADO) as Ganancia, s.SUCURSAL_ID, t.MES_NRO
+CREATE VIEW [manaOS_BI].vista_ganancias_xSucursal_xMes_AUTO AS 
+	SELECT SUM(fa.PRECIO_AUTO_FACTURADO - ca.COMPRA_AUTO_PRECIO) as Ganancia, s.SUCURSAL_ID, t.MES_NRO
 	FROM [manaOS_BI].Compra c
 	INNER JOIN [manaOS_BI].[Factura] f ON c.FACTURA_NRO = f.FACTURA_NRO
 	INNER JOIN [manaOS_BI].[Sucursal] s ON f.SUCURSAL_ID = s.SUCURSAL_ID
 	INNER JOIN [manaOS_BI].[Tiempo] t ON t.MES_NRO = MONTH(f.FACTURA_FECHA) AND t.ANIO_NRO = YEAR(f.FACTURA_FECHA)
+	INNER JOIN [manaOS_BI].[FacturacionDeAuto] fa ON fa.FACTURA_NRO = f.FACTURA_NRO
+	INNER JOIN [manaOS_BI].[CompraDeAuto] ca ON ca.COMPRA_NRO = c.COMPRA_NRO
 	GROUP BY s.SUCURSAL_ID, t.MES_NRO, t.ANIO_NRO
 GO
 
@@ -592,7 +594,36 @@ GO
 -- AUTOPARTE
 
 -- Precio promedio de cada autoparte, vendida y comprada.
+
+CREATE VIEW [manaOS_BI].vista_precio_promedio_autopartes_vendidas_y_compradas AS 
+	SELECT CASE WHEN (AVG((f.[PRECIO_FACTURADO] + c.[COMPRA_PRECIO])/2)) IS NULL THEN 0
+				WHEN (AVG((f.[PRECIO_FACTURADO] + c.[COMPRA_PRECIO])/2)) IS NOT NULL THEN AVG((f.[PRECIO_FACTURADO] + c.[COMPRA_PRECIO])/2)
+				END as PrecioPromedio, 
+				a.[AUTO_PARTE_CODIGO]
+	FROM [GD2C2020].[manaOS_BI].[Factura] f 
+	INNER JOIN [GD2C2020].[manaOS_BI].[FacturacionDeAutoParte] fa ON fa.[FACTURA_NRO] = f.[FACTURA_NRO]
+	RIGHT OUTER JOIN [GD2C2020].[manaOS_BI].[AutoParte] a ON a.[AUTOPARTE_ID] = fa.[AUTOPARTE_ID]
+	LEFT OUTER JOIN [GD2C2020].[manaOS_BI].[CompraDeAutoParte] ca ON ca.[AUTOPARTE_ID] = a.[AUTOPARTE_ID]
+	INNER JOIN [GD2C2020].[manaOS_BI].[Compra] c ON c.[COMPRA_NRO] = ca.[COMPRA_NRO]
+	GROUP BY a.[AUTO_PARTE_CODIGO]
+GO 
+
 -- Ganancias (precio de venta – precio de compra) x Sucursal x mes
+
+CREATE VIEW [manaOS_BI].vista_ganancias_xSucursal_xMes_AUTOPARTE AS 
+	SELECT SUM(fa.PRECIO_AUTOPARTE_FACTURADO - ca.COMPRA_AUTOPARTE_PRECIO) as Ganancia, s.SUCURSAL_ID, t.MES_NRO
+	FROM [manaOS_BI].Compra c
+	INNER JOIN [manaOS_BI].[CompraDeAutoParte] ca ON ca.COMPRA_NRO = c.COMPRA_NRO
+	INNER JOIN [manaOS_BI].[FacturacionDeAutoParte] fa ON fa.FACTURACION_AUTOPARTE_ID = ca.AUTOPARTE_ID
+	INNER JOIN [manaOS_BI].[Factura] f ON fa.FACTURA_NRO = f.FACTURA_NRO
+	INNER JOIN [manaOS_BI].[Sucursal] s ON f.SUCURSAL_ID = s.SUCURSAL_ID
+	INNER JOIN [manaOS_BI].[Tiempo] t ON t.MES_NRO = MONTH(f.FACTURA_FECHA) AND t.ANIO_NRO = YEAR(f.FACTURA_FECHA)
+	GROUP BY s.SUCURSAL_ID, t.MES_NRO, t.ANIO_NRO
+GO
+
 -- Máxima cantidad de stock por cada sucursal (anual)
+	
+	-- Para esta vista en particular, asumimos que como en el caso de la vista de "Promedio de tiempo en stock de cada autoparte"
+	-- No tenemos manera de saber el stock de las autopartes.
 
 COMMIT TRANSACTION transaccion_creacion_vistas
