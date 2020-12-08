@@ -565,11 +565,29 @@ CREATE VIEW [manaOS_BI].vista_ganancias_xSucursal_xMes AS
 	INNER JOIN [manaOS_BI].[Sucursal] s ON f.SUCURSAL_ID = s.SUCURSAL_ID
 	INNER JOIN [manaOS_BI].[Tiempo] t ON t.MES_NRO = MONTH(f.FACTURA_FECHA) AND t.ANIO_NRO = YEAR(f.FACTURA_FECHA)
 	GROUP BY s.SUCURSAL_ID, t.MES_NRO, t.ANIO_NRO
-	ORDER BY t.ANIO_NRO,t.MES_NRO, s.SUCURSAL_ID
 GO
 
 -- Promedio de tiempo en stock de cada modelo de automóvil.
+CREATE VIEW [manaOS_BI].PromedioTiempoStockCadaModeloAutoXDIA AS 
+SELECT [MODELO_CODIGO], AVG(DATEDIFF(DAY,[AUTO_FECHA_ALTA],SYSDATETIME())) as PromedioTiempoEnStockEnDias
+FROM [manaOS_BI].[Auto]
+WHERE [AUTO_ID] NOT IN (select [AUTO_ID] from [manaOS_BI].[FacturacionDeAuto])
+GROUP BY [MODELO_CODIGO]
+GO
 
+CREATE VIEW [manaOS_BI].PromedioTiempoStockCadaModeloAutoXMES AS 
+SELECT [MODELO_CODIGO], AVG(DATEDIFF(MONTH,[AUTO_FECHA_ALTA],SYSDATETIME())) as PromedioTiempoEnStockEnMeses
+FROM [manaOS_BI].[Auto]
+WHERE [AUTO_ID] NOT IN (select [AUTO_ID] from [manaOS_BI].[FacturacionDeAuto])
+GROUP BY [MODELO_CODIGO]
+GO
+
+CREATE VIEW [manaOS_BI].PromedioTiempoStockCadaModeloAutoXANIO AS 
+SELECT [MODELO_CODIGO], AVG(DATEDIFF(YEAR,[AUTO_FECHA_ALTA],SYSDATETIME())) as PromedioTiempoEnStockEnAnios
+FROM [manaOS_BI].[Auto]
+WHERE [AUTO_ID] NOT IN (select [AUTO_ID] from [manaOS_BI].[FacturacionDeAuto])
+GROUP BY [MODELO_CODIGO]
+GO
 
 -- AUTOPARTE
 
