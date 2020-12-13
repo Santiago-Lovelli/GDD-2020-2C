@@ -522,7 +522,6 @@ CREATE VIEW [manaOS_BI].vista_ganancias_xSucursal_xMes_AUTOPARTE AS
 	GROUP BY fa.SUCURSAL_ID, t.MES_NRO, t.ANIO_NRO
 GO
 
-
 -- Máxima cantidad de stock por cada sucursal (anual)
 	
 	-- Para esta vista en particular, asumimos que como en el caso de la vista de "Promedio de tiempo en stock de cada autoparte"
