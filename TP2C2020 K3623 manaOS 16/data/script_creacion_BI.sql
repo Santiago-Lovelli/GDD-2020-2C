@@ -106,65 +106,6 @@ CREATE TABLE GD2C2020.manaOS_BI.AutoParte(
 
 -----------------------------------------------------------------------------------------------------
 
-CREATE TABLE GD2C2020.manaOS_BI.CompraDeAutoParte(
-	COMPRA_AUTOPARTE_ID int NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	COMPRA_AUTOPARTE_PRECIO float,
-	COMPRA_NRO decimal (18,0) NOT NULL,
-	AUTOPARTE_ID int NOT NULL
-);
-
------------------------------------------------------------------------------------------------------
-
-
-CREATE TABLE GD2C2020.manaOS_BI.FacturacionDeAutoParte(
-	FACTURACION_AUTOPARTE_ID int NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	PRECIO_AUTOPARTE_FACTURADO float,
-	FACTURA_NRO decimal (18,0) NOT NULL,
-	AUTOPARTE_ID int NOT NULL
-);
-
-
------------------------------------------------------------------------------------------------------
-
-CREATE TABLE GD2C2020.manaOS_BI.FacturacionDeAuto(
-	FACTURACION_AUTO_ID int NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	PRECIO_AUTO_FACTURADO float,
-	FACTURA_NRO decimal (18,0) NOT NULL,
-	AUTO_ID int NOT NULL
-);
-
------------------------------------------------------------------------------------------------------
-
-CREATE TABLE GD2C2020.manaOS_BI.CompraDeAuto(
-	COMPRA_AUTO_ID int NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	COMPRA_AUTO_PRECIO float,
-	COMPRA_NRO decimal (18,0) NOT NULL,
-	AUTO_ID int NOT NULL
-);
-
------------------------------------------------------------------------------------------------------
-
-CREATE TABLE GD2C2020.manaOS_BI.Factura(
-	FACTURA_NRO decimal (18,0) NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	FACTURA_FECHA datetime2 (3),
-	CANT_FACTURADA decimal (18,0),
-	PRECIO_FACTURADO decimal (18,0),
-	CLIENTE_ID DECIMAL(18,0) NOT NULL,
-	SUCURSAL_ID int NOT NULL,
-);
-
------------------------------------------------------------------------------------------------------
-
-CREATE TABLE GD2C2020.manaOS_BI.Compra(
-	COMPRA_NRO decimal (18,0) NOT NULL IDENTITY(1,1) PRIMARY KEY,
-	COMPRA_FECHA datetime2 (3),
-	COMPRA_PRECIO decimal (18,0),
-	COMPRA_CANT decimal (18,0),
-	FACTURA_NRO decimal (18,0)
-);
-
------------------------------------------------------------------------------------------------------
-
 CREATE TABLE GD2C2020.manaOS_BI.Auto (
 	AUTO_ID INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	AUTO_CANT_KMS DECIMAL(18,0),
@@ -177,6 +118,36 @@ CREATE TABLE GD2C2020.manaOS_BI.Auto (
 	TIPO_AUTO_CODIGO decimal(18,0) NOT NULL,
 );
 
+-----------------------------------------------------------------------------------------------------
+
+CREATE TABLE GD2C2020.manaOS_BI.HechosFactura(
+	ID_HECHOFACTURA decimal (18,0) NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	FACTURA_NRO decimal (18,0),
+	FACTURA_FECHA datetime2 (3),
+	CANT_FACTURADA decimal (18,0),
+	PRECIO_FACTURADO decimal (18,0),
+	CLIENTE_ID DECIMAL(18,0),
+	SUCURSAL_ID int NOT NULL,
+	AUTO_ID int,
+	PRECIO_AUTO_FACTURADO float,
+	AUTOPARTE_ID int,
+	PRECIO_AUTOPARTE_FACTURADO float
+);
+
+-----------------------------------------------------------------------------------------------------
+
+CREATE TABLE GD2C2020.manaOS_BI.HechosCompra(
+	ID_HECHOCOMPRA decimal (18,0) NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	COMPRA_NRO decimal (18,0),
+	COMPRA_FECHA datetime2 (3),
+	COMPRA_PRECIO decimal (18,0),
+	COMPRA_CANT decimal (18,0),
+	FACTURA_NRO decimal (18,0),
+	AUTO_ID int,
+	COMPRA_AUTO_PRECIO float,
+	AUTOPARTE_ID int,
+	COMPRA_AUTOPARTE_PRECIO float
+);
 
 --Agregamos las FK-----------------------------------------------------------------------------------
 
@@ -219,73 +190,48 @@ ALTER TABLE GD2C2020.manaOS_BI.AutoParte
 
 -----------------------------------------------------------------------------------------------------
 
-ALTER TABLE GD2C2020.manaOS_BI.CompraDeAutoParte
-   ADD CONSTRAINT FK_CompraDeAutoParte_Compra FOREIGN KEY (COMPRA_NRO)
-      REFERENCES GD2C2020.manaOS_BI.Compra(COMPRA_NRO)
-      ON DELETE CASCADE
-      ON UPDATE CASCADE
-;
-
-ALTER TABLE GD2C2020.manaOS_BI.CompraDeAutoParte
-   ADD CONSTRAINT FK_CompraDeAutoParte_AutoParte FOREIGN KEY (AUTOPARTE_ID)
-      REFERENCES GD2C2020.manaOS_BI.AutoParte(AUTOPARTE_ID)
-      ON DELETE CASCADE
-      ON UPDATE CASCADE
-;
-
------------------------------------------------------------------------------------------------------
-
-ALTER TABLE GD2C2020.manaOS_BI.FacturacionDeAuto
-   ADD CONSTRAINT FK_FacturacionDeAuto_Factura FOREIGN KEY (FACTURA_NRO)
-      REFERENCES GD2C2020.manaOS_BI.Factura(FACTURA_NRO)
-      ON DELETE CASCADE
-      ON UPDATE CASCADE
-;
-
-ALTER TABLE GD2C2020.manaOS_BI.FacturacionDeAuto
+ALTER TABLE GD2C2020.manaOS_BI.HechosFactura
    ADD CONSTRAINT FK_FacturacionDeAuto_Auto FOREIGN KEY (AUTO_ID)
       REFERENCES GD2C2020.manaOS_BI.Auto(AUTO_ID)
       ON DELETE CASCADE
       ON UPDATE CASCADE
 ;
 
------------------------------------------------------------------------------------------------------
-
-ALTER TABLE GD2C2020.manaOS_BI.CompraDeAuto
-   ADD CONSTRAINT FK_CompraDeAuto_Compra FOREIGN KEY (COMPRA_NRO)
-      REFERENCES GD2C2020.manaOS_BI.Compra(COMPRA_NRO)
-      ON DELETE CASCADE
-      ON UPDATE CASCADE
-;
-
-ALTER TABLE GD2C2020.manaOS_BI.CompraDeAuto
-   ADD CONSTRAINT FK_CompraDeAuto_Auto FOREIGN KEY (AUTO_ID)
-      REFERENCES GD2C2020.manaOS_BI.Auto(AUTO_ID)
-      ON DELETE CASCADE
-      ON UPDATE CASCADE
-;
-
------------------------------------------------------------------------------------------------------
-
-ALTER TABLE GD2C2020.manaOS_BI.Factura
+ALTER TABLE GD2C2020.manaOS_BI.HechosFactura
    ADD CONSTRAINT FK_Factura_Cliente FOREIGN KEY (CLIENTE_ID)
       REFERENCES GD2C2020.manaOS_BI.Cliente(CLIENTE_CODIGO)
       ON DELETE CASCADE
       ON UPDATE CASCADE
 ;
 
-ALTER TABLE GD2C2020.manaOS_BI.Factura
+ALTER TABLE GD2C2020.manaOS_BI.HechosFactura
    ADD CONSTRAINT FK_Factura_Sucursal FOREIGN KEY (SUCURSAL_ID)
       REFERENCES GD2C2020.manaOS_BI.Sucursal(SUCURSAL_ID)
       ON DELETE CASCADE
       ON UPDATE CASCADE
 ;
 
+
+ALTER TABLE GD2C2020.manaOS_BI.HechosFactura
+   ADD CONSTRAINT FK_FacturacionDeAutoParte_AutoParte FOREIGN KEY (AUTOPARTE_ID)
+      REFERENCES GD2C2020.manaOS.AutoParte(AUTOPARTE_ID)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+;
+
 -----------------------------------------------------------------------------------------------------
 
-ALTER TABLE GD2C2020.manaOS_BI.Compra
-   ADD CONSTRAINT FK_Compra_Factura FOREIGN KEY (FACTURA_NRO)
-      REFERENCES GD2C2020.manaOS_BI.Factura(FACTURA_NRO)
+ALTER TABLE GD2C2020.manaOS_BI.HechosCompra
+   ADD CONSTRAINT FK_CompraDeAutoParte_AutoParte FOREIGN KEY (AUTOPARTE_ID)
+      REFERENCES GD2C2020.manaOS_BI.AutoParte(AUTOPARTE_ID)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+;
+
+
+ALTER TABLE GD2C2020.manaOS_BI.HechosCompra
+   ADD CONSTRAINT FK_CompraDeAuto_Auto FOREIGN KEY (AUTO_ID)
+      REFERENCES GD2C2020.manaOS_BI.Auto(AUTO_ID)
       ON DELETE CASCADE
       ON UPDATE CASCADE
 ;
@@ -295,22 +241,22 @@ ALTER TABLE GD2C2020.manaOS_BI.Compra
 ALTER TABLE GD2C2020.manaOS_BI.Auto
    ADD CONSTRAINT FK_Auto_Modelo FOREIGN KEY (MODELO_CODIGO)
       REFERENCES GD2C2020.manaOS_BI.Modelo(MODELO_CODIGO)
-      ON DELETE CASCADE
-      ON UPDATE CASCADE
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION
 ;
 
 ALTER TABLE GD2C2020.manaOS_BI.Auto
    ADD CONSTRAINT FK_Auto_Fabricante FOREIGN KEY (FABRICANTE_ID)
       REFERENCES GD2C2020.manaOS_BI.Fabricante(FABRICANTE_ID)
-      ON DELETE CASCADE
-      ON UPDATE CASCADE
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION
 ;
 
 ALTER TABLE GD2C2020.manaOS_BI.Auto
    ADD CONSTRAINT FK_Auto_Tipo FOREIGN KEY (TIPO_AUTO_CODIGO)
       REFERENCES GD2C2020.manaOS_BI.TipoAuto(TIPO_AUTO_CODIGO)
-      ON DELETE CASCADE
-      ON UPDATE CASCADE
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION
 ;
 
 COMMIT TRANSACTION transaccion_creacion_tablas
@@ -472,54 +418,18 @@ INSERT INTO [GD2C2020].[manaOS_BI].[Auto] ([AUTO_CANT_KMS],[AUTO_FECHA_ALTA],[AU
 	SELECT [AUTO_CANT_KMS],[AUTO_FECHA_ALTA],[AUTO_NRO_CHASIS],[AUTO_NRO_MOTOR],[AUTO_PATENTE],[FABRICANTE_ID],[MODELO_CODIGO],[TIPO_AUTO_CODIGO]
 	FROM [GD2C2020].[manaOS].[Auto]
 
--- Factura
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Factura] ON
-GO
-INSERT INTO [GD2C2020].[manaOS_BI].[Factura] ([FACTURA_NRO],[CANT_FACTURADA],[CLIENTE_ID],[FACTURA_FECHA],[PRECIO_FACTURADO],[SUCURSAL_ID])
-	SELECT [FACTURA_NRO],[CANT_FACTURADA],[CLIENTE_ID],[FACTURA_FECHA],[PRECIO_FACTURADO],[SUCURSAL_ID] 
-	FROM [manaOS].[Factura]
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Factura] OFF
-GO
--- FacturacionDeAuto
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[FacturacionDeAuto] ON
-GO
-INSERT INTO [GD2C2020].[manaOS_BI].[FacturacionDeAuto] ([FACTURACION_AUTO_ID],[PRECIO_AUTO_FACTURADO],[FACTURA_NRO],[AUTO_ID])
-	SELECT [FACTURACION_AUTO_ID],[PRECIO_AUTO_FACTURADO],[FACTURA_NRO],[AUTO_ID]
-	FROM [manaOS].[FacturacionDeAuto]
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[FacturacionDeAuto] OFF
-GO
--- FacturacionDeAutoParte
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[FacturacionDeAutoParte] ON
-GO
-INSERT INTO [GD2C2020].[manaOS_BI].[FacturacionDeAutoParte] ([AUTOPARTE_ID],[FACTURA_NRO],[FACTURACION_AUTOPARTE_ID],[PRECIO_AUTOPARTE_FACTURADO])
-	SELECT [AUTOPARTE_ID],[FACTURA_NRO],[FACTURACION_AUTOPARTE_ID],[PRECIO_AUTOPARTE_FACTURADO]
-	FROM [manaOS].[FacturacionDeAutoParte]
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[FacturacionDeAutoParte] OFF
-GO
--- Compra
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Compra] ON
-GO
-INSERT INTO [GD2C2020].[manaOS_BI].[Compra] ([COMPRA_CANT],[COMPRA_FECHA],[COMPRA_NRO],[COMPRA_PRECIO],[FACTURA_NRO])
-	SELECT [COMPRA_CANT],[COMPRA_FECHA],[COMPRA_NRO],[COMPRA_PRECIO],[FACTURA_NRO]
-	FROM  [GD2C2020].[manaOS].[Compra]
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[Compra] OFF
-GO
--- CompraDeAuto
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[CompraDeAuto] ON
-GO
-INSERT INTO [GD2C2020].[manaOS_BI].[CompraDeAuto] ([AUTO_ID],[COMPRA_AUTO_ID],[COMPRA_AUTO_PRECIO],[COMPRA_NRO])
-	SELECT [AUTO_ID],[COMPRA_AUTO_ID],[COMPRA_AUTO_PRECIO],[COMPRA_NRO]
-	FROM [GD2C2020].[manaOS].[CompraDeAuto]
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[CompraDeAuto] OFF
-GO
--- CompraDeAutoParte
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[CompraDeAutoParte] ON
-GO
-INSERT INTO [GD2C2020].[manaOS_BI].[CompraDeAutoParte] ([AUTOPARTE_ID],[COMPRA_AUTOPARTE_ID],[COMPRA_AUTOPARTE_PRECIO],[COMPRA_NRO])
-	SELECT [AUTOPARTE_ID],[COMPRA_AUTOPARTE_ID],[COMPRA_AUTOPARTE_PRECIO],[COMPRA_NRO]
-	FROM [GD2C2020].[manaOS].[CompraDeAutoParte]
-SET IDENTITY_INSERT [GD2C2020].[manaOS_BI].[CompraDeAutoParte] OFF
-GO
+-- HechosFactura
+INSERT INTO [GD2C2020].[manaOS_BI].[HechosFactura] ([FACTURA_NRO],[CANT_FACTURADA],[CLIENTE_ID],[FACTURA_FECHA],[PRECIO_FACTURADO],[SUCURSAL_ID],[PRECIO_AUTO_FACTURADO],[AUTO_ID],[AUTOPARTE_ID],[PRECIO_AUTOPARTE_FACTURADO])
+	SELECT f.[FACTURA_NRO],f.[CANT_FACTURADA],f.[CLIENTE_ID],f.[FACTURA_FECHA],f.[PRECIO_FACTURADO],f.[SUCURSAL_ID] ,fau.[PRECIO_AUTO_FACTURADO],fau.[AUTO_ID],faup.[AUTOPARTE_ID],faup.[PRECIO_AUTOPARTE_FACTURADO]
+	FROM [manaOS].[Factura] f
+	LEFT OUTER JOIN [manaOS].FacturacionDeAuto fau ON fau.[FACTURA_NRO] = f.[FACTURA_NRO]
+	LEFT OUTER JOIN [manaOS].FacturacionDeAutoParte faup ON faup.[FACTURA_NRO] = f.[FACTURA_NRO]
+-- HechosCompra
+INSERT INTO [GD2C2020].[manaOS_BI].[HechosCompra] ([COMPRA_CANT],[COMPRA_FECHA],[COMPRA_NRO],[COMPRA_PRECIO],[FACTURA_NRO],[AUTO_ID],[COMPRA_AUTO_PRECIO],[AUTOPARTE_ID],[COMPRA_AUTOPARTE_PRECIO])
+	SELECT c.[COMPRA_CANT],c.[COMPRA_FECHA],c.[COMPRA_NRO],c.[COMPRA_PRECIO],c.[FACTURA_NRO], cau.[AUTO_ID],cau.[COMPRA_AUTO_PRECIO], caup.[AUTOPARTE_ID],caup.[COMPRA_AUTOPARTE_PRECIO]
+	FROM  [GD2C2020].[manaOS].[Compra] c
+	LEFT OUTER JOIN [GD2C2020].[manaOS].[CompraDeAuto] cau ON cau.[COMPRA_NRO] = c.[COMPRA_NRO]
+	LEFT OUTER JOIN [GD2C2020].[manaOS].[CompraDeAutoParte] caup ON caup.[COMPRA_NRO] = c.[COMPRA_NRO]
 
 COMMIT TRANSACTION transaccion_migracion_datos
 
@@ -536,9 +446,8 @@ CREATE VIEW [manaOS_BI].vista_automoviles_vendido_x_sucursal_y_mes AS
 	SELECT CONCAT( s.[SUCURSAL_DIRECCION], ', ', s.[CIUDAD_NOMBRE]) as Sucursal,
 	COUNT(a.[AUTO_ID]) AS CANTIDAD_DE_AUTOMOVILES, MONTH(F.[FACTURA_FECHA]) AS MES
 	FROM [GD2C2020].[manaOS_BI].[Sucursal] s
-	INNER JOIN [GD2C2020].[manaOS_BI].[Factura] f ON f.[SUCURSAL_ID] = S.[SUCURSAL_ID]
-	INNER JOIN [GD2C2020].[manaOS_BI].[FacturacionDeAuto] fa ON fa.[FACTURA_NRO] = f.[FACTURA_NRO]
-	INNER JOIN [GD2C2020].[manaOS_BI].[Auto] a ON a.[AUTO_ID] = fa.[AUTO_ID]
+	INNER JOIN [GD2C2020].[manaOS_BI].[HechosFactura] f ON f.[SUCURSAL_ID] = S.[SUCURSAL_ID]
+	INNER JOIN [GD2C2020].[manaOS_BI].[Auto] a ON a.[AUTO_ID] = f.[AUTO_ID]
 	GROUP BY s.[SUCURSAL_DIRECCION],s.[CIUDAD_NOMBRE], MONTH(F.[FACTURA_FECHA])
 GO
 
@@ -549,23 +458,19 @@ CREATE VIEW [manaOS_BI].vista_precio_promedio_autos_vendidos_y_comprados AS
 				WHEN (AVG((f.[PRECIO_FACTURADO] + c.[COMPRA_PRECIO])/2)) IS NOT NULL THEN AVG((f.[PRECIO_FACTURADO] + c.[COMPRA_PRECIO])/2)
 				END as PrecioPromedio, 
 				a.[AUTO_PATENTE]
-	FROM [GD2C2020].[manaOS_BI].[Factura] f 
-	INNER JOIN [GD2C2020].[manaOS_BI].[FacturacionDeAuto] fa ON fa.[FACTURA_NRO] = f.[FACTURA_NRO]
-	RIGHT OUTER JOIN [GD2C2020].[manaOS_BI].[Auto] a ON a.[AUTO_ID] = fa.[AUTO_ID]
-	LEFT OUTER JOIN [GD2C2020].[manaOS_BI].[CompraDeAuto] ca ON ca.[AUTO_ID] = a.[AUTO_ID]
-	INNER JOIN [GD2C2020].[manaOS_BI].[Compra] c ON c.[COMPRA_NRO] = ca.[COMPRA_NRO]
+	FROM [GD2C2020].[manaOS_BI].[HechosFactura] f 
+	RIGHT OUTER JOIN [GD2C2020].[manaOS_BI].[Auto] a ON a.[AUTO_ID] = f.[AUTO_ID]
+	LEFT OUTER JOIN [GD2C2020].[manaOS_BI].[HechosCompra] c ON c.[AUTO_ID] = a.[AUTO_ID]
 	GROUP BY A.[AUTO_PATENTE]
 GO 
 
 -- Ganancias (precio de venta – precio de compra) x Sucursal x mes
 CREATE VIEW [manaOS_BI].vista_ganancias_xSucursal_xMes_AUTO AS 
-	SELECT SUM(fa.PRECIO_AUTO_FACTURADO - ca.COMPRA_AUTO_PRECIO) as Ganancia, s.SUCURSAL_ID, t.MES_NRO
-	FROM [manaOS_BI].Compra c
-	INNER JOIN [manaOS_BI].[Factura] f ON c.FACTURA_NRO = f.FACTURA_NRO
+	SELECT SUM(f.PRECIO_AUTO_FACTURADO - c.COMPRA_AUTO_PRECIO) as Ganancia, s.SUCURSAL_ID, t.MES_NRO
+	FROM [manaOS_BI].[HechosCompra] c
+	INNER JOIN [manaOS_BI].[HechosFactura] f ON c.FACTURA_NRO = f.FACTURA_NRO
 	INNER JOIN [manaOS_BI].[Sucursal] s ON f.SUCURSAL_ID = s.SUCURSAL_ID
 	INNER JOIN [manaOS_BI].[Tiempo] t ON t.MES_NRO = MONTH(f.FACTURA_FECHA) AND t.ANIO_NRO = YEAR(f.FACTURA_FECHA)
-	INNER JOIN [manaOS_BI].[FacturacionDeAuto] fa ON fa.FACTURA_NRO = f.FACTURA_NRO
-	INNER JOIN [manaOS_BI].[CompraDeAuto] ca ON ca.COMPRA_NRO = c.COMPRA_NRO
 	GROUP BY s.SUCURSAL_ID, t.MES_NRO, t.ANIO_NRO
 GO
 
@@ -573,21 +478,21 @@ GO
 CREATE VIEW [manaOS_BI].PromedioTiempoStockCadaModeloAutoXDIA AS 
 SELECT [MODELO_CODIGO], AVG(DATEDIFF(DAY,[AUTO_FECHA_ALTA],SYSDATETIME())) as PromedioTiempoEnStockEnDias
 FROM [manaOS_BI].[Auto]
-WHERE [AUTO_ID] NOT IN (select [AUTO_ID] from [manaOS_BI].[FacturacionDeAuto])
+WHERE [AUTO_ID] NOT IN (select [AUTO_ID] from [manaOS_BI].[HechosFactura] where [AUTO_ID] is not null)
 GROUP BY [MODELO_CODIGO]
 GO
 
 CREATE VIEW [manaOS_BI].PromedioTiempoStockCadaModeloAutoXMES AS 
 SELECT [MODELO_CODIGO], AVG(DATEDIFF(MONTH,[AUTO_FECHA_ALTA],SYSDATETIME())) as PromedioTiempoEnStockEnMeses
 FROM [manaOS_BI].[Auto]
-WHERE [AUTO_ID] NOT IN (select [AUTO_ID] from [manaOS_BI].[FacturacionDeAuto])
+WHERE [AUTO_ID] NOT IN (select [AUTO_ID] from [manaOS_BI].[HechosFactura] where [AUTO_ID] is not null)
 GROUP BY [MODELO_CODIGO]
 GO
 
 CREATE VIEW [manaOS_BI].PromedioTiempoStockCadaModeloAutoXANIO AS 
 SELECT [MODELO_CODIGO], AVG(DATEDIFF(YEAR,[AUTO_FECHA_ALTA],SYSDATETIME())) as PromedioTiempoEnStockEnAnios
 FROM [manaOS_BI].[Auto]
-WHERE [AUTO_ID] NOT IN (select [AUTO_ID] from [manaOS_BI].[FacturacionDeAuto])
+WHERE [AUTO_ID] NOT IN (select [AUTO_ID] from [manaOS_BI].[HechosFactura] where [AUTO_ID] is not null)
 GROUP BY [MODELO_CODIGO]
 GO
 
@@ -600,26 +505,23 @@ CREATE VIEW [manaOS_BI].vista_precio_promedio_autopartes_vendidas_y_compradas AS
 				WHEN (AVG((f.[PRECIO_FACTURADO] + c.[COMPRA_PRECIO])/2)) IS NOT NULL THEN AVG((f.[PRECIO_FACTURADO] + c.[COMPRA_PRECIO])/2)
 				END as PrecioPromedio, 
 				a.[AUTO_PARTE_CODIGO]
-	FROM [GD2C2020].[manaOS_BI].[Factura] f 
-	INNER JOIN [GD2C2020].[manaOS_BI].[FacturacionDeAutoParte] fa ON fa.[FACTURA_NRO] = f.[FACTURA_NRO]
-	RIGHT OUTER JOIN [GD2C2020].[manaOS_BI].[AutoParte] a ON a.[AUTOPARTE_ID] = fa.[AUTOPARTE_ID]
-	LEFT OUTER JOIN [GD2C2020].[manaOS_BI].[CompraDeAutoParte] ca ON ca.[AUTOPARTE_ID] = a.[AUTOPARTE_ID]
-	INNER JOIN [GD2C2020].[manaOS_BI].[Compra] c ON c.[COMPRA_NRO] = ca.[COMPRA_NRO]
+	FROM [GD2C2020].[manaOS_BI].[HechosFactura] f 
+	RIGHT OUTER JOIN [GD2C2020].[manaOS_BI].[AutoParte] a ON a.[AUTOPARTE_ID] = f.[AUTOPARTE_ID]
+	LEFT OUTER JOIN [GD2C2020].[manaOS_BI].[HechosCompra] c ON c.[AUTOPARTE_ID] = a.[AUTOPARTE_ID]
 	GROUP BY a.[AUTO_PARTE_CODIGO]
 GO 
 
 -- Ganancias (precio de venta – precio de compra) x Sucursal x mes
 
 CREATE VIEW [manaOS_BI].vista_ganancias_xSucursal_xMes_AUTOPARTE AS 
-	SELECT SUM(fa.PRECIO_AUTOPARTE_FACTURADO - ca.COMPRA_AUTOPARTE_PRECIO) as Ganancia, s.SUCURSAL_ID, t.MES_NRO
-	FROM [manaOS_BI].Compra c
-	INNER JOIN [manaOS_BI].[CompraDeAutoParte] ca ON ca.COMPRA_NRO = c.COMPRA_NRO
-	INNER JOIN [manaOS_BI].[FacturacionDeAutoParte] fa ON fa.FACTURACION_AUTOPARTE_ID = ca.AUTOPARTE_ID
-	INNER JOIN [manaOS_BI].[Factura] f ON fa.FACTURA_NRO = f.FACTURA_NRO
-	INNER JOIN [manaOS_BI].[Sucursal] s ON f.SUCURSAL_ID = s.SUCURSAL_ID
-	INNER JOIN [manaOS_BI].[Tiempo] t ON t.MES_NRO = MONTH(f.FACTURA_FECHA) AND t.ANIO_NRO = YEAR(f.FACTURA_FECHA)
-	GROUP BY s.SUCURSAL_ID, t.MES_NRO, t.ANIO_NRO
+	SELECT SUM(fa.PRECIO_AUTOPARTE_FACTURADO - c.COMPRA_AUTOPARTE_PRECIO) as Ganancia, fa.SUCURSAL_ID, t.MES_NRO
+	FROM [manaOS_BI].[HechosCompra] c
+	LEFT OUTER JOIN [manaOS_BI].[HechosFactura] fa ON fa.AUTOPARTE_ID = c.AUTOPARTE_ID
+	INNER JOIN [manaOS_BI].[Tiempo] t ON t.MES_NRO = MONTH(fa.FACTURA_FECHA) AND t.ANIO_NRO = YEAR(fa.FACTURA_FECHA)
+	WHERE c.[AUTOPARTE_ID] IS NOT NULL
+	GROUP BY fa.SUCURSAL_ID, t.MES_NRO, t.ANIO_NRO
 GO
+
 
 -- Máxima cantidad de stock por cada sucursal (anual)
 	
